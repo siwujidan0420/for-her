@@ -5,88 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>跨年星光·专属信笺</title>
     <style>
-        :root { --bg-color: #0b1021; --accent-color: #fde68a; }
-        body { margin: 0; background: var(--bg-color); height: 100vh; overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; transition: background 2s ease; }
+        :root { --accent: #fde68a; }
+        body { margin: 0; background: #0b1021; height: 100vh; overflow: hidden; font-family: "PingFang SC", sans-serif; transition: background 1.5s ease; }
         canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
         
-        .page { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #fefefe; transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; pointer-events: none; }
-        .hidden { opacity: 0; transform: scale(0.9) translateY(30px); }
-        .active { opacity: 1; transform: scale(1) translateY(0); }
+        /* 页面基础样式 */
+        .page { 
+            position: absolute; width: 100%; height: 100%; display: flex; 
+            flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; color: #fefefe; transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10; pointer-events: none; opacity: 0; transform: scale(0.9);
+        }
+        .active { opacity: 1; transform: scale(1); }
 
-        h1 { font-size: 2.5rem; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255,255,255,0.2); margin-bottom: 20px; }
-        .wish-text { font-size: 1.1rem; line-height: 2.2; color: rgba(255,255,255,0.8); }
-        .highlight { color: var(--accent-color); font-weight: 500; border-bottom: 1.5px solid rgba(253,230,138,0.4); }
+        h1 { font-size: 2.2rem; letter-spacing: 5px; text-shadow: 0 0 15px rgba(255,255,255,0.2); margin-bottom: 20px; }
+        .wish-text { font-size: 1.05rem; line-height: 2.5; color: rgba(255,255,255,0.85); padding: 0 20px; }
+        .highlight { color: var(--accent); font-weight: 500; border-bottom: 1.5px solid rgba(253,230,138,0.3); }
 
-        #nextBtn { position: fixed; bottom: 50px; right: 50px; z-index: 100; padding: 12px 28px; border: 1px solid var(--accent-color); background: transparent; color: var(--accent-color); border-radius: 30px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
-        #nextBtn:hover { background: var(--accent-color); color: #000; box-shadow: 0 0 20px rgba(253,230,138,0.3); }
+        /* 翻页按钮 */
+        #nextBtn {
+            position: fixed; bottom: 40px; right: 40px; z-index: 100;
+            padding: 8px 20px; border: 1px solid var(--accent);
+            background: transparent; color: var(--accent);
+            border-radius: 20px; cursor: pointer; font-size: 0.85rem;
+            transition: all 0.3s; backdrop-filter: blur(5px);
+        }
+        #nextBtn:hover { background: var(--accent); color: #000; }
 
-        .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--accent-color); font-size: 1rem; animation: floatUp 2.5s ease-out forwards; text-shadow: 0 0 10px rgba(253,230,138,0.5); }
-        @keyframes floatUp { 0% { opacity: 0; transform: translateY(0) scale(0.8); } 20% { opacity: 1; transform: translateY(-30px) scale(1); } 100% { opacity: 0; transform: translateY(-130px) scale(1.1); } }
+        /* 朦胧感彩蛋文字 */
+        .pop-text {
+            position: fixed; z-index: 100; pointer-events: none;
+            color: var(--accent); font-size: 0.95rem; font-weight: 300;
+            animation: floatUp 2.5s ease-out forwards;
+            text-shadow: 0 0 8px rgba(253,230,138,0.4);
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 0.8; transform: translateY(-30px); }
+            100% { opacity: 0; transform: translateY(-120px); }
+        }
     </style>
 </head>
 <body onclick="handleInteraction(event)">
+
     <audio id="bgm" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
     <canvas id="canvas"></canvas>
 
     <div id="page1" class="page active">
         <h1>新年快乐</h1>
         <div class="wish-text">
-            有些话，星光知道，晚风也知道。<br>在这个特别的瞬间，愿你：<br>
+            有些话，星光知道，晚风也知道。<br>
+            在这个特别的瞬息，愿你：<br>
             <span class="highlight">所</span>遇皆温柔，<span class="highlight">有</span>良人相伴<br>
             <span class="highlight">可</span>抵岁月长，<span class="highlight">以</span>后皆如愿
         </div>
     </div>
 
-    <div id="page2" class="page hidden">
-        <h1>心意回响</h1>
+    <div id="page2" class="page">
+        <h1>关于心跳</h1>
         <div class="wish-text">
-            跨越山海，想把最好的运气都存给你。<br>未来的航程里，愿你：<br>
-            每一步<span class="highlight">都</span>笃定，一生<span class="highlight">是</span>平安<br>
-            <span class="highlight">陪</span>着星光走，<span class="highlight">你</span>我共余生
+            海底的鱼群，听不见岸上的风声。<br>
+            但每一次波澜起伏，<br>
+            都是海对岛屿<br>
+            最<span class="highlight">深</span>沉的告白
         </div>
     </div>
 
-    <button id="nextBtn" onclick="nextPage(event)">查看下一份心意</button>
+    <div id="page3" class="page">
+        <h1>远洋寄语</h1>
+        <div class="wish-text">
+            七月的风，会吹向未知的海平线。<br>
+            无论航行多远，<br>
+            这封<span class="highlight">信</span>笺始终留在这里，<br>
+            等你<span class="highlight">回头</span>发现
+        </div>
+    </div>
+
+    <div id="page4" class="page">
+        <h1>未完待续</h1>
+        <div class="wish-text">
+            如果你也点到了这里，<br>
+            那便是我们跨越时空的<span class="highlight">默契</span>。<br>
+            2026，愿这份朦胧的温柔，<br>
+            能陪你走过<span class="highlight">以后的时光</span>
+        </div>
+    </div>
+
+    <button id="nextBtn" onclick="nextPage(event)">下一份心意</button>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let particles = [], isMusicPlaying = false, currentPage = 1;
-        const secretPhrases = ["万物可爱，你最可爱", "想在你身边，不止在跨年", "2026，我的愿望里有个你", "海风吹过的时候，我都在想你", "有些心动，连代码都写不出", "所有的'可以'，都是我的私心"];
+        
+        // 朦胧且优雅的彩蛋库
+        const secretPhrases = [
+            "如果你也点到了这里，那就是我们的默契",
+            "万物可爱，你也是",
+            "风停在窗边，带去我不经意的问候",
+            "星光和你，都很温柔",
+            "所有的'可以'，都是我的私心",
+            "愿这阵风能吹到你身边",
+            "有些心动，连代码都写不出",
+            "如果你回头，我一直都在",
+            "陪着星光走，是我最想做的事",
+            "2026，愿岁岁常相见"
+        ];
+
+        const themes = [
+            { bg: '#0b1021', particles: ['#ffffff', '#fde68a', '#93f5ff'] }, // 第一幕：星夜
+            { bg: '#061612', particles: ['#a8e6cf', '#ffffff', '#fde68a'] }, // 第二幕：深海
+            { bg: '#2d1b1a', particles: ['#ffb7b2', '#ffdac1', '#ffffff'] }, // 第三幕：晨曦
+            { bg: '#1a0b21', particles: ['#c7ceea', '#b2e2f2', '#fde68a'] }  // 第四幕：星云
+        ];
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
 
         class Particle {
-            constructor(x, y, color, velocity) { this.x = x; this.y = y; this.color = color; this.velocity = velocity; this.alpha = 1; }
-            draw() { ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath(); ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.shadowBlur = 5; ctx.shadowColor = this.color; ctx.fill(); ctx.restore(); }
-            update() { this.velocity.x *= 0.96; this.velocity.y *= 0.96; this.velocity.y += 0.12; this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= 0.01; }
+            constructor(x, y, color, velocity) {
+                this.x = x; this.y = y; this.color = color;
+                this.velocity = velocity; this.alpha = 1;
+            }
+            draw() {
+                ctx.save(); ctx.globalAlpha = this.alpha;
+                ctx.beginPath(); ctx.arc(this.x, this.y, 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.shadowBlur = 4; ctx.shadowColor = this.color;
+                ctx.fill(); ctx.restore();
+            }
+            update() {
+                this.velocity.x *= 0.96; this.velocity.y *= 0.96;
+                this.velocity.y += 0.1; this.x += this.velocity.x;
+                this.y += this.velocity.y; this.alpha -= 0.012;
+            }
         }
 
         function handleInteraction(e) {
             if (e.target.tagName === 'BUTTON') return;
-            if (!isMusicPlaying) { document.getElementById('bgm').play(); isMusicPlaying = true; }
-            const colors = currentPage === 1 ? ['#ffffff', '#fde68a', '#93f5ff'] : ['#ff9a9e', '#fecfef', '#ffffff'];
-            for (let i = 0; i < 35; i++) {
-                const angle = (Math.PI * 2 / 35) * i, speed = Math.random() * 5 + 2;
-                particles.push(new Particle(e.clientX, e.clientY, colors[Math.floor(Math.random()*colors.length)], { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }));
+            if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; }
+            
+            const colorSet = themes[currentPage-1].particles;
+            for (let i = 0; i < 30; i++) {
+                const angle = (Math.PI * 2 / 30) * i, speed = Math.random() * 4 + 2;
+                particles.push(new Particle(e.clientX, e.clientY, colorSet[Math.floor(Math.random()*colorSet.length)], {
+                    x: Math.cos(angle) * speed, y: Math.sin(angle) * speed
+                }));
             }
-            if (Math.random() > 0.4) {
-                const text = document.createElement('div'); text.className = 'pop-text'; text.style.left = e.clientX + 'px'; text.style.top = e.clientY + 'px'; text.textContent = secretPhrases[Math.floor(Math.random() * secretPhrases.length)]; document.body.appendChild(text); setTimeout(() => text.remove(), 2500);
-            }
+            if (Math.random() > 0.45) showPopText(e.clientX, e.clientY);
+        }
+
+        function showPopText(x, y) {
+            const text = document.createElement('div');
+            text.className = 'pop-text';
+            text.style.left = x + 'px'; text.style.top = y + 'px';
+            text.textContent = secretPhrases[Math.floor(Math.random() * secretPhrases.length)];
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 2500);
         }
 
         function nextPage(e) {
             e.stopPropagation();
-            const p1 = document.getElementById('page1'), p2 = document.getElementById('page2'), btn = document.getElementById('nextBtn');
-            if (currentPage === 1) { p1.className = 'page hidden'; p2.className = 'page active'; document.body.style.background = '#1a100f'; btn.textContent = '返回'; currentPage = 2; }
-            else { p1.className = 'page active'; p2.className = 'page hidden'; document.body.style.background = '#0b1021'; btn.textContent = '查看下一份心意'; currentPage = 1; }
+            const currentEl = document.getElementById(`page${currentPage}`);
+            currentPage = currentPage < 4 ? currentPage + 1 : 1;
+            const nextEl = document.getElementById(`page${currentPage}`);
+            
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            nextEl.classList.add('active');
+            document.body.style.background = themes[currentPage-1].bg;
+            document.getElementById('nextBtn').textContent = currentPage === 4 ? '回到序曲' : '下一份心意';
         }
 
         function animate() {
-            ctx.fillStyle = currentPage === 1 ? 'rgba(11, 16, 33, 0.2)' : 'rgba(26, 16, 15, 0.2)';
+            ctx.fillStyle = themes[currentPage-1].bg + '33'; // 保持拖影效果
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => { if (p.alpha > 0) { p.update(); p.draw(); } else particles.splice(i, 1); });
+            particles.forEach((p, i) => {
+                if (p.alpha > 0) { p.update(); p.draw(); }
+                else particles.splice(i, 1);
+            });
             requestAnimationFrame(animate);
         }
         animate();
