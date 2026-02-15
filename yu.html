@@ -20,7 +20,10 @@
     </style>
 </head>
 <body onclick="handleInteraction(event)">
-    <audio id="bgm" loop><source src="love.mp3" type="audio/mpeg"></audio>
+    <audio id="bgm" loop>
+        <source src="love.mp3" type="audio/mpeg">
+    </audio>
+
     <canvas id="canvas"></canvas>
     <div id="hintText" class="guide-hint">轻触星光，开启新岁</div>
 
@@ -55,7 +58,24 @@
         window.addEventListener('resize',resize);resize();
         class P { constructor(x,y,c,v){this.x=x;this.y=y;this.c=c;this.v=v;this.a=1;} draw(){ctx.save();ctx.globalAlpha=this.a;ctx.beginPath();ctx.arc(this.x,this.y,1.2,0,Math.PI*2);ctx.fillStyle=this.c;ctx.fill();ctx.restore();} update(){this.v.x*=0.97;this.v.y*=0.97;this.v.y+=0.08;this.x+=this.v.x;this.y+=this.v.y;this.a-=0.01;} }
         function createFirework(x, y) { for (let i = 0; i < 35; i++) { const ang = (Math.PI * 2 / 35) * i, spd = Math.random() * 5 + 2; particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd})); } }
-        function handleInteraction(e) { if (e.target.tagName === 'BUTTON') return; if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; document.getElementById('hintText').style.display = 'none'; } createFirework(e.clientX, e.clientY); if (Math.random() > 0.45) { const t = document.createElement('div'); t.className = 'pop-text'; t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; t.textContent = phrases[Math.floor(Math.random() * phrases.length)]; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); } }
+        
+        function handleInteraction(e) { 
+            if (e.target.tagName === 'BUTTON') return; 
+            if (!isMusicPlaying) { 
+                // 尝试播放音乐，如果失败会静默
+                var audio = document.getElementById('bgm');
+                audio.play().then(() => {
+                    console.log("Music playing");
+                }).catch((error) => {
+                    console.log("Autoplay prevented or file not found: " + error);
+                });
+                isMusicPlaying = true; 
+                document.getElementById('hintText').style.display = 'none'; 
+            } 
+            createFirework(e.clientX, e.clientY); 
+            if (Math.random() > 0.45) { const t = document.createElement('div'); t.className = 'pop-text'; t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; t.textContent = phrases[Math.floor(Math.random() * phrases.length)]; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); } 
+        }
+        
         function autoFire() { createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7); setTimeout(autoFire, Math.random() * 1000 + 800); }
         autoFire();
         function nextPage(e) { e.stopPropagation(); currentPage = currentPage === 1 ? 2 : 1; document.querySelectorAll('.page').forEach((p,i)=>p.className=i===currentPage-1?'page active':'page'); document.body.style.background = themes[currentPage-1].bg; document.getElementById('nextBtn').textContent = currentPage === 1 ? '下一份心意' : '回到序言'; }
