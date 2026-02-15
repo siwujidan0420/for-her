@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨年专属心意</title>
+    <style>
+        /* 背景：深空蓝紫色渐变，营造私密且浪漫的氛围 */
+        body { margin: 0; background: radial-gradient(circle at center, #2d1b4d 0%, #1a1a2e 100%); height: 100vh; overflow: hidden; font-family: "Microsoft YaHei", sans-serif; cursor: crosshair; }
+        .content { position: relative; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; pointer-events: none; text-align: center; }
+        
+        /* 祝福标题动画 */
+        h1 { color: #fde68a; font-size: 3.2rem; text-shadow: 0 0 20px rgba(253,230,138,0.4); animation: breathe 3s infinite ease-in-out; }
+        
+        /* 祝福语：包含“所有可以”藏头暗示 */
+        .wish-text { color: #e2e8f0; font-size: 1.3rem; line-height: 2.2; margin-top: 25px; opacity: 0; animation: fadeIn 3s forwards 1s; }
+        .highlight { color: #fde68a; font-weight: bold; border-bottom: 1px dashed #fde68a; }
+
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 烟花粒子样式 */
+        .particle { position: absolute; pointer-events: none; border-radius: 50%; }
+        
+        .hint { font-size: 0.8rem; color: rgba(226, 232, 240, 0.4); margin-top: 50px; }
+    </style>
+</head>
+<body onclick="startExperience(event)">
+
+    <audio id="bgm" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="content">
+        <h1>新年快乐</h1>
+        <div class="wish-text">
+            新的一年，想把最特别的祝福留给你：<br>
+            愿你：<br>
+            <span class="highlight">所</span>见皆是星辰，<span class="highlight">有</span>梦都能成真<br>
+            <span class="highlight">可</span>期未来如画，<span class="highlight">以</span>后万事顺心
+        </div>
+        <p class="hint">（点击屏幕，开启专属心意）</p>
+    </div>
+
+    <script>
+        let isMusicPlaying = false;
+
+        function startExperience(e) {
+            // 1. 播放音乐
+            if (!isMusicPlaying) {
+                const audio = document.getElementById('bgm');
+                audio.play().catch(err => console.log("等待交互播放音乐"));
+                isMusicPlaying = true;
+            }
+            // 2. 触发烟花
+            createFirework(e);
+        }
+
+        function createFirework(e) {
+            const count = 30;
+            const colors = ['#a78bfa', '#fde68a', '#ffffff', '#818cf8'];
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                document.body.appendChild(p);
+                
+                const angle = (i / count) * Math.PI * 2;
+                const velocity = Math.random() * 5 + 4;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                let x = e.clientX;
+                let y = e.clientY;
+                let opacity = 1;
+
+                const animate = () => {
+                    x += vx; y += vy; opacity -= 0.015;
+                    p.style.left = x + 'px'; p.style.top = y + 'px';
+                    p.style.width = p.style.height = (opacity * 6) + 'px';
+                    p.style.opacity = opacity;
+                    if (opacity > 0) requestAnimationFrame(animate); else p.remove();
+                };
+                requestAnimationFrame(animate);
+            }
+        }
+    </script>
+</body>
+</html>
