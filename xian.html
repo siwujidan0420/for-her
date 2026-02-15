@@ -16,16 +16,27 @@
         .wish-text { font-size: 1.05rem; line-height: 2.6; color: rgba(255,255,255,0.85); padding: 0 25px; }
         .highlight { color: var(--accent); font-weight: 500; border-bottom: 1.5px solid rgba(253,230,138,0.3); }
 
+        /* 呼吸感引导词 */
+        .guide-hint {
+            position: fixed; top: 65%; color: var(--accent); font-size: 0.85rem;
+            letter-spacing: 2px; opacity: 0.6; animation: breathe 2.5s infinite;
+            z-index: 15; pointer-events: none;
+        }
+
         #nextBtn { position: fixed; bottom: 40px; right: 40px; z-index: 100; padding: 8px 18px; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s; backdrop-filter: blur(5px); }
         #nextBtn:hover { background: var(--accent); color: #000; }
 
         .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--accent); font-size: 0.95rem; animation: floatUp 2.8s ease-out forwards; text-shadow: 0 0 8px rgba(253,230,138,0.4); }
+        
+        @keyframes breathe { 0%, 100% { opacity: 0.2; transform: scale(0.95); } 50% { opacity: 0.7; transform: scale(1.05); } }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.8; transform: translateY(-35px); } 100% { opacity: 0; transform: translateY(-130px); } }
     </style>
 </head>
 <body onclick="handleInteraction(event)">
     <audio id="bgm" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
     <canvas id="canvas"></canvas>
+
+    <div id="hintText" class="guide-hint">触碰星辰，开启这段微光</div>
 
     <div id="page1" class="page active">
         <h1>序章：那年隆冬</h1>
@@ -71,7 +82,7 @@
         <h1>未完待续</h1>
         <div class="wish-text">
             如果你也点到了这里，<br>
-            那便是我们跨越时空的<span class="highlight">默契</span>。<br>
+            那便是跨越时空的<span class="highlight">默契</span>。<br>
             2026年的所有期许里，<br>
             我都为你留了一个<span class="highlight">专属</span>的位置。
         </div>
@@ -93,29 +104,11 @@
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         let particles = [], isMusicPlaying = false, currentPage = 1;
         
-        const phrases = [
-            "如果你也点到了这里，那就是我们的默契",
-            "记得24年那个冬天吗？✨",
-            "三月的春天，想和你一起看",
-            "期待有你的下一年",
-            "万物可爱，你也是",
-            "所有的'可以'，都是我的私心",
-            "我的航程里，预留了你的位置",
-            "愿这阵风，能吹到你身边",
-            "2026，愿岁岁常相见"
-        ];
+        const phrases = ["如果你也点到了这里，那就是我们的默契","记得24年那个冬天吗？✨","三月的春天，想和你一起看","期待有你的下一年","万物可爱，你也是","我的航程里，预留了你的位置","愿这阵风，能吹到你身边","所有的'可以'，都是我的私心","2026，愿岁岁常相见"];
+        const themes = [{bg:'#0b1021',c:['#ffffff','#fde68a','#93f5ff']},{bg:'#061612',c:['#a8e6cf','#ffffff','#fde68a']},{bg:'#2d1b1a',c:['#ffb7b2','#ffdac1','#ffffff']},{bg:'#1a2a0b',c:['#d4fc79','#ffffff','#fde68a']},{bg:'#1d1d1d',c:['#e0e0e0','#ffffff','#fde68a']},{bg:'#000000',c:['#ffd700','#ffffff','#ff69b4']}];
 
-        const themes = [
-            { bg: '#0b1021', c: ['#ffffff', '#fde68a', '#93f5ff'] }, // 第一幕
-            { bg: '#061612', c: ['#a8e6cf', '#ffffff', '#fde68a'] }, // 第二幕
-            { bg: '#2d1b1a', c: ['#ffb7b2', '#ffdac1', '#ffffff'] }, // 第三幕
-            { bg: '#1a2a0b', c: ['#d4fc79', '#ffffff', '#fde68a'] }, // 第四幕（三月绿）
-            { bg: '#1d1d1d', c: ['#e0e0e0', '#ffffff', '#fde68a'] }, // 第五幕
-            { bg: '#000000', c: ['#ffd700', '#ffffff', '#ff69b4'] }  // 第六幕
-        ];
-
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
+        function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+        window.addEventListener('resize',resize);resize();
 
         class P {
             constructor(x,y,c,v){this.x=x;this.y=y;this.c=c;this.v=v;this.a=1;}
@@ -123,13 +116,21 @@
             update(){this.v.x*=0.96;this.v.y*=0.96;this.v.y+=0.1;this.x+=this.v.x;this.y+=this.v.y;this.a-=0.012;}
         }
 
-        function handleInteraction(e) {
-            if (e.target.tagName === 'BUTTON') return;
-            if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; }
+        function createFirework(x, y) {
             for (let i = 0; i < 30; i++) {
                 const ang = (Math.PI * 2 / 30) * i, spd = Math.random() * 4 + 2;
-                particles.push(new P(e.clientX, e.clientY, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd}));
+                particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd}));
             }
+        }
+
+        function handleInteraction(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            if (!isMusicPlaying) {
+                document.getElementById('bgm').play().catch(()=>{});
+                isMusicPlaying = true;
+                document.getElementById('hintText').style.display = 'none';
+            }
+            createFirework(e.clientX, e.clientY);
             if (Math.random() > 0.45) {
                 const t = document.createElement('div'); t.className = 'pop-text';
                 t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px';
@@ -137,6 +138,12 @@
                 document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
             }
         }
+
+        function autoFire() {
+            createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7);
+            setTimeout(autoFire, Math.random() * 2000 + 1500);
+        }
+        autoFire();
 
         function nextPage(e) {
             e.stopPropagation();
