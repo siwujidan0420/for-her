@@ -1,1 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致：雨</title>
+    <style>
+        :root { --accent: #e0e7ff; --sub: #93f5ff; }
+        body { margin: 0; background: #0a0e17; height: 100vh; overflow: hidden; font-family: "PingFang SC", "STHeiti", sans-serif; transition: background 1.5s ease; cursor: crosshair; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        
+        .page { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #fefefe; transition: all 1s ease; z-index: 10; pointer-events: none; opacity: 0; transform: scale(0.98); }
+        .active { opacity: 1; transform: scale(1); }
 
+        h1 { font-size: 1.8rem; letter-spacing: 6px; text-shadow: 0 0 15px rgba(224,231,255,0.3); margin-bottom: 25px; color: var(--accent); font-weight: 300; }
+        .wish-text { font-size: 1rem; line-height: 2.8; color: rgba(224,231,255,0.75); padding: 0 30px; letter-spacing: 1px; }
+        .highlight { color: var(--sub); font-weight: 400; border-bottom: 1px solid rgba(147,245,255,0.2); }
+
+        .guide-hint { position: fixed; top: 72%; color: var(--sub); font-size: 0.8rem; letter-spacing: 2px; animation: breathe 3s infinite; z-index: 15; pointer-events: none; }
+        #nextBtn { position: fixed; bottom: 50px; right: 50px; z-index: 100; padding: 10px 24px; border: 1px solid rgba(224,231,255,0.3); background: transparent; color: var(--accent); border-radius: 30px; cursor: pointer; font-size: 0.8rem; backdrop-filter: blur(4px); pointer-events: auto; transition: all 0.4s; }
+        #nextBtn:hover { border-color: var(--sub); background: rgba(224,231,255,0.05); }
+
+        .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--sub); font-size: 0.9rem; animation: floatUp 3s ease-out forwards; font-weight: 300; letter-spacing: 1px; }
+        
+        @keyframes breathe { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.5; } }
+        @keyframes floatUp { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 0.8; transform: translateY(-20px); } 100% { opacity: 0; transform: translateY(-100px); } }
+    </style>
+</head>
+<body onclick="handleInteraction(event)">
+    <audio id="bgm" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
+    <canvas id="canvas"></canvas>
+    <div id="hintText" class="guide-hint">轻触星光，开启新岁</div>
+
+    <div id="page1" class="page active">
+        <h1>见字如面，雨</h1>
+        <div class="wish-text">
+            记忆里最清透的时光，<br>
+            依然是<span class="highlight">初中</span>那一页。<br>
+            虽然许久未见，但老友如旧，<br>
+            不必时时联系，但始终<span class="highlight">记在心上</span>。
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <h1>各自安好</h1>
+        <div class="wish-text">
+            我们在 22 岁的关口，<br>
+            奔赴在各自热爱的山海。<br>
+            愿你在不常联络的日子里，<br>
+            依然拥有<span class="highlight">笃定</span>的温柔与力量。
+        </div>
+    </div>
+
+    <div id="page3" class="page">
+        <h1>万事胜意</h1>
+        <div class="wish-text">
+            新的一年，<br>
+            愿你：<span class="highlight">所遇皆良辰</span>，所行皆坦途。<br>
+            哪怕世界喧嚣，<br>
+            愿你永远保有那份最初的<span class="highlight">自在</span>。
+        </div>
+    </div>
+
+    <button id="nextBtn" onclick="nextPage(event)">下一份心意</button>
+
+    <script>
+        const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+        let particles = [], isMusicPlaying = false, currentPage = 1;
+        
+        // 优雅且朦胧的祝福词
+        const phrases = ["岁岁常欢愉", "年年皆胜意", "顺遂无忧", "万物可爱", "平安喜乐", "自在如风", "记得24年那个冬天吗？✨", "顶峰相见", "好梦成真"];
+        const themes = [{bg:'#0a0e17',c:['#e0e7ff','#ffffff','#93f5ff']},{bg:'#0d111a',c:['#ffffff','#93f5ff','#c7d2fe']},{bg:'#090c12',c:['#fde68a','#ffffff','#e0e7ff']}];
+
+        function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+        window.addEventListener('resize',resize);resize();
+
+        class P {
+            constructor(x,y,c,v){this.x=x;this.y=y;this.c=c;this.v=v;this.a=1;}
+            draw(){ctx.save();ctx.globalAlpha=this.a;ctx.beginPath();ctx.arc(this.x,this.y,1.2,0,Math.PI*2);ctx.fillStyle=this.c;ctx.fill();ctx.restore();}
+            update(){this.v.x*=0.97;this.v.y*=0.97;this.v.y+=0.08;this.x+=this.v.x;this.y+=this.v.y;this.a-=0.01;}
+        }
+
+        function createFirework(x, y) {
+            for (let i = 0; i < 25; i++) {
+                const ang = (Math.PI * 2 / 25) * i, spd = Math.random() * 3 + 1.5;
+                particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd}));
+            }
+        }
+
+        function handleInteraction(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; document.getElementById('hintText').style.display = 'none'; }
+            createFirework(e.clientX, e.clientY);
+            if (Math.random() > 0.45) {
+                const t = document.createElement('div'); t.className = 'pop-text';
+                t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px';
+                t.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+                document.body.appendChild(t); setTimeout(() => t.remove(), 2800);
+            }
+        }
+
+        function autoFire() {
+            createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7);
+            setTimeout(autoFire, Math.random() * 3000 + 2000);
+        }
+        autoFire();
+
+        function nextPage(e) {
+            e.stopPropagation();
+            currentPage = currentPage < 3 ? currentPage + 1 : 1;
+            document.querySelectorAll('.page').forEach((p,i)=>p.className=i===currentPage-1?'page active':'page');
+            document.body.style.background = themes[currentPage-1].bg;
+            document.getElementById('nextBtn').textContent = currentPage === 3 ? '回到序言' : '下一份心意';
+        }
+
+        function animate() {
+            ctx.fillStyle = themes[currentPage-1].bg + '22'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => { if (p.a > 0) { p.update(); p.draw(); } else particles.splice(i, 1); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
