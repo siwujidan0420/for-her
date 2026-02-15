@@ -14,9 +14,9 @@
         .wish-text { font-size: 1rem; line-height: 2.8; color: rgba(224,231,255,0.75); padding: 0 30px; }
         .guide-hint { position: fixed; top: 72%; color: var(--sub); font-size: 0.8rem; animation: breathe 3s infinite; z-index: 15; pointer-events: none; }
         #nextBtn { position: fixed; bottom: 50px; right: 50px; z-index: 100; padding: 10px 24px; border: 1px solid rgba(224,231,255,0.3); background: transparent; color: var(--accent); border-radius: 30px; cursor: pointer; font-size: 0.8rem; backdrop-filter: blur(4px); pointer-events: auto; }
-        .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--sub); font-size: 0.9rem; animation: floatUp 3s ease-out forwards; }
+        .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--sub); font-size: 0.9rem; animation: floatUp 3s ease-out forwards; text-shadow: 0 0 5px rgba(147,245,255,0.5); }
         @keyframes breathe { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.5; } }
-        @keyframes floatUp { 0% { opacity: 0; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        @keyframes floatUp { 0% { opacity: 0; transform: translateY(0) scale(0.8); } 20% { opacity: 1; transform: translateY(-30px) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.1); } }
     </style>
 </head>
 <body onclick="handleInteraction(event)">
@@ -40,7 +40,7 @@
     <div id="page2" class="page">
         <h1>各自安好</h1>
         <div class="wish-text">
-            我们在 22 岁的关口，奔赴在各自热爱的山海。<br>
+            我们在 <span style="color:var(--sub); font-weight:500;">青春的关口</span>，奔赴在各自热爱的山海。<br>
             愿你在不常联络的日子里，<br>
             依然拥有<span style="color:var(--sub)">笃定</span>的温柔与力量。<br>
             愿你：所遇皆良辰，所行皆坦途。
@@ -52,7 +52,8 @@
     <script>
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         let particles = [], isMusicPlaying = false, currentPage = 1;
-        const phrases = ["平安喜乐", "万物可爱", "自在如风", "顺遂无忧", "万事胜意", "好梦成真"];
+        // 点击炸出的短句库
+        const phrases = ["平安喜乐 ✨", "万物可爱", "自在如风", "顺遂无忧", "万事胜意", "好梦成真 🌙", "岁岁平安"];
         const themes = [{bg:'#0a0e17',c:['#e0e7ff','#ffffff','#93f5ff']},{bg:'#0d111a',c:['#ffffff','#93f5ff','#c7d2fe']}];
         function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
         window.addEventListener('resize',resize);resize();
@@ -62,18 +63,21 @@
         function handleInteraction(e) { 
             if (e.target.tagName === 'BUTTON') return; 
             if (!isMusicPlaying) { 
-                // 尝试播放音乐，如果失败会静默
                 var audio = document.getElementById('bgm');
-                audio.play().then(() => {
-                    console.log("Music playing");
-                }).catch((error) => {
-                    console.log("Autoplay prevented or file not found: " + error);
-                });
+                // 尝试播放音乐
+                audio.play().catch((error) => { console.log("等待交互播放"); });
                 isMusicPlaying = true; 
                 document.getElementById('hintText').style.display = 'none'; 
             } 
+            // 放烟花
             createFirework(e.clientX, e.clientY); 
-            if (Math.random() > 0.45) { const t = document.createElement('div'); t.className = 'pop-text'; t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; t.textContent = phrases[Math.floor(Math.random() * phrases.length)]; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); } 
+            // 较大概率炸出文字
+            if (Math.random() > 0.3) { 
+                const t = document.createElement('div'); t.className = 'pop-text'; 
+                t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; 
+                t.textContent = phrases[Math.floor(Math.random() * phrases.length)]; 
+                document.body.appendChild(t); setTimeout(() => t.remove(), 2800); 
+            } 
         }
         
         function autoFire() { createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7); setTimeout(autoFire, Math.random() * 1000 + 800); }
