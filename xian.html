@@ -12,22 +12,15 @@
         .page { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #fefefe; transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; pointer-events: none; opacity: 0; transform: scale(0.95); }
         .active { opacity: 1; transform: scale(1); }
 
-        h1 { font-size: 1.6rem; letter-spacing: 5px; text-shadow: 0 0 15px rgba(255,255,255,0.2); margin-bottom: 20px; color: var(--accent); }
+        h1 { font-size: 1.8rem; letter-spacing: 5px; text-shadow: 0 0 15px rgba(255,255,255,0.2); margin-bottom: 20px; color: var(--accent); }
         .wish-text { font-size: 1.05rem; line-height: 2.6; color: rgba(255,255,255,0.85); padding: 0 25px; }
         .highlight { color: var(--accent); font-weight: 500; border-bottom: 1.5px solid rgba(253,230,138,0.3); }
 
-        /* 呼吸感引导词 */
-        .guide-hint {
-            position: fixed; top: 65%; color: var(--accent); font-size: 0.85rem;
-            letter-spacing: 2px; opacity: 0.6; animation: breathe 2.5s infinite;
-            z-index: 15; pointer-events: none;
-        }
-
-        #nextBtn { position: fixed; bottom: 40px; right: 40px; z-index: 100; padding: 8px 18px; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s; backdrop-filter: blur(5px); }
+        .guide-hint { position: fixed; top: 65%; color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; animation: breathe 2.5s infinite; z-index: 15; pointer-events: none; }
+        #nextBtn { position: fixed; bottom: 40px; right: 40px; z-index: 100; padding: 8px 18px; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s; backdrop-filter: blur(5px); pointer-events: auto; }
         #nextBtn:hover { background: var(--accent); color: #000; }
 
         .pop-text { position: fixed; z-index: 100; pointer-events: none; color: var(--accent); font-size: 0.95rem; animation: floatUp 2.8s ease-out forwards; text-shadow: 0 0 8px rgba(253,230,138,0.4); }
-        
         @keyframes breathe { 0%, 100% { opacity: 0.2; transform: scale(0.95); } 50% { opacity: 0.7; transform: scale(1.05); } }
         @keyframes floatUp { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.8; transform: translateY(-35px); } 100% { opacity: 0; transform: translateY(-130px); } }
     </style>
@@ -36,9 +29,19 @@
     <audio id="bgm" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
     <canvas id="canvas"></canvas>
 
-    <div id="hintText" class="guide-hint">触碰星辰，开启这段微光</div>
+    <div id="hintText" class="guide-hint">触碰星辰，开启新年心意</div>
 
     <div id="page1" class="page active">
+        <h1>2026 · 新年快乐</h1>
+        <div class="wish-text">
+            岁末将至，敬颂冬绥。<br>
+            在这场跨越时空的告别里，<br>
+            愿你：<span class="highlight">万事顺遂</span>，常安常乐，<br>
+            眼里有星辰，身边有良人。
+        </div>
+    </div>
+
+    <div id="page2" class="page">
         <h1>序章：那年隆冬</h1>
         <div class="wish-text">
             记忆拨回到 <span class="highlight">2024年的十二月</span>。<br>
@@ -48,23 +51,13 @@
         </div>
     </div>
 
-    <div id="page2" class="page">
+    <div id="page3" class="page">
         <h1>无声起伏</h1>
         <div class="wish-text">
             海底的鱼群，听不见岸上的风声。<br>
             但每一次波澜起伏，<br>
             都是海对岛屿<br>
             最<span class="highlight">深沉</span>的告白。
-        </div>
-    </div>
-
-    <div id="page3" class="page">
-        <h1>归航坐标</h1>
-        <div class="wish-text">
-            <span class="highlight">七月</span>的季风，会将桅杆带向远方。<br>
-            但在茫茫大海的航图里，<br>
-            我已预留了唯一的<span class="highlight">返航</span>坐标。<br>
-            因为那里，有我想见的<span class="highlight">风景</span>。
         </div>
     </div>
 
@@ -79,19 +72,9 @@
     </div>
 
     <div id="page5" class="page">
-        <h1>未完待续</h1>
-        <div class="wish-text">
-            如果你也点到了这里，<br>
-            那便是跨越时空的<span class="highlight">默契</span>。<br>
-            2026年的所有期许里，<br>
-            我都为你留了一个<span class="highlight">专属</span>的位置。
-        </div>
-    </div>
-
-    <div id="page6" class="page">
         <h1>一个预留位</h1>
         <div class="wish-text">
-            三月的风，七月的海，<br>
+            三月的风，<span class="highlight">七月</span>的海，<br>
             还有<span class="highlight">下一年</span>的你。<br>
             如果你也愿意，<br>
             请告诉我，这就是最美的<span class="highlight">回应</span>。
@@ -104,8 +87,9 @@
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         let particles = [], isMusicPlaying = false, currentPage = 1;
         
-        const phrases = ["如果你也点到了这里，那就是我们的默契","记得24年那个冬天吗？✨","三月的春天，想和你一起看","期待有你的下一年","万物可爱，你也是","我的航程里，预留了你的位置","愿这阵风，能吹到你身边","所有的'可以'，都是我的私心","2026，愿岁岁常相见"];
-        const themes = [{bg:'#0b1021',c:['#ffffff','#fde68a','#93f5ff']},{bg:'#061612',c:['#a8e6cf','#ffffff','#fde68a']},{bg:'#2d1b1a',c:['#ffb7b2','#ffdac1','#ffffff']},{bg:'#1a2a0b',c:['#d4fc79','#ffffff','#fde68a']},{bg:'#1d1d1d',c:['#e0e0e0','#ffffff','#fde68a']},{bg:'#000000',c:['#ffd700','#ffffff','#ff69b4']}];
+        const phrases = ["如果你也点到了这里，那就是我们的默契","记得24年那个冬天吗？✨","三月的春天，想和你一起看","期待有你的下一年","万物可爱，你也是","所有的'可以'，都是我的私心","我的航程里，预留了你的位置","愿这阵风，能吹到你身边","2026，愿岁岁常相见"];
+        // 第一页加入红色调烟花，增加新年喜庆感
+        const themes = [{bg:'#1a0b0b',c:['#ff4d4d','#fde68a','#ffffff']},{bg:'#0b1021',c:['#ffffff','#fde68a','#93f5ff']},{bg:'#061612',c:['#a8e6cf','#ffffff','#fde68a']},{bg:'#1a2a0b',c:['#d4fc79','#ffffff','#fde68a']},{bg:'#000000',c:['#ffd700','#ffffff','#ff69b4']}];
 
         function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
         window.addEventListener('resize',resize);resize();
@@ -117,8 +101,8 @@
         }
 
         function createFirework(x, y) {
-            for (let i = 0; i < 30; i++) {
-                const ang = (Math.PI * 2 / 30) * i, spd = Math.random() * 4 + 2;
+            for (let i = 0; i < 35; i++) { // 增加单次烟花粒子数
+                const ang = (Math.PI * 2 / 35) * i, spd = Math.random() * 5 + 2;
                 particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd}));
             }
         }
@@ -139,18 +123,20 @@
             }
         }
 
+        // 核心改动：增加自动燃放频率
         function autoFire() {
             createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7);
-            setTimeout(autoFire, Math.random() * 2000 + 1500);
+            // 缩短间隔到 0.8s - 2.0s 之间，烟花更密集
+            setTimeout(autoFire, Math.random() * 1200 + 800);
         }
         autoFire();
 
         function nextPage(e) {
             e.stopPropagation();
-            currentPage = currentPage < 6 ? currentPage + 1 : 1;
+            currentPage = currentPage < 5 ? currentPage + 1 : 1;
             document.querySelectorAll('.page').forEach((p,i)=>p.className=i===currentPage-1?'page active':'page');
             document.body.style.background = themes[currentPage-1].bg;
-            document.getElementById('nextBtn').textContent = currentPage === 6 ? '回到最初' : '下一份心意';
+            document.getElementById('nextBtn').textContent = currentPage === 5 ? '回到序章' : '下一份心意';
         }
 
         function animate() {
