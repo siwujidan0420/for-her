@@ -27,7 +27,7 @@
     <div id="page1" class="page active">
         <h1>见字如面，雨</h1>
         <div class="wish-text">
-            记忆里最清透的时光，依然是<span style="color:var(--sub)">初中</span>那一页。<br>
+            记忆里最清透的时光，依然是初中那一页。<br>
             虽然许久未见，但老友如旧。<br>
             在这场新年的烟火里，愿你：<br>
             <span style="color:var(--sub)">岁岁常欢愉，年年皆胜意。</span>
@@ -49,57 +49,17 @@
     <script>
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         let particles = [], isMusicPlaying = false, currentPage = 1;
-        const phrases = ["平安喜乐", "万物可爱", "自在如风", "记得24年那个冬天吗？✨", "顺遂无忧", "好梦成真"];
+        const phrases = ["平安喜乐", "万物可爱", "自在如风", "顺遂无忧", "万事胜意", "好梦成真"];
         const themes = [{bg:'#0a0e17',c:['#e0e7ff','#ffffff','#93f5ff']},{bg:'#0d111a',c:['#ffffff','#93f5ff','#c7d2fe']}];
-
         function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
         window.addEventListener('resize',resize);resize();
-
-        class P {
-            constructor(x,y,c,v){this.x=x;this.y=y;this.c=c;this.v=v;this.a=1;}
-            draw(){ctx.save();ctx.globalAlpha=this.a;ctx.beginPath();ctx.arc(this.x,this.y,1.2,0,Math.PI*2);ctx.fillStyle=this.c;ctx.fill();ctx.restore();}
-            update(){this.v.x*=0.97;this.v.y*=0.97;this.v.y+=0.08;this.x+=this.v.x;this.y+=this.v.y;this.a-=0.01;}
-        }
-
-        function createFirework(x, y) {
-            for (let i = 0; i < 30; i++) {
-                const ang = (Math.PI * 2 / 30) * i, spd = Math.random() * 4 + 2;
-                particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd}));
-            }
-        }
-
-        function handleInteraction(e) {
-            if (e.target.tagName === 'BUTTON') return;
-            if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; document.getElementById('hintText').style.display = 'none'; }
-            createFirework(e.clientX, e.clientY);
-            if (Math.random() > 0.45) {
-                const t = document.createElement('div'); t.className = 'pop-text';
-                t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px';
-                t.textContent = phrases[Math.floor(Math.random() * phrases.length)];
-                document.body.appendChild(t); setTimeout(() => t.remove(), 2800);
-            }
-        }
-
-        // 自动燃放频率增加：每 1-2 秒触发一次
-        function autoFire() {
-            createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7);
-            setTimeout(autoFire, Math.random() * 1000 + 1000);
-        }
+        class P { constructor(x,y,c,v){this.x=x;this.y=y;this.c=c;this.v=v;this.a=1;} draw(){ctx.save();ctx.globalAlpha=this.a;ctx.beginPath();ctx.arc(this.x,this.y,1.2,0,Math.PI*2);ctx.fillStyle=this.c;ctx.fill();ctx.restore();} update(){this.v.x*=0.97;this.v.y*=0.97;this.v.y+=0.08;this.x+=this.v.x;this.y+=this.v.y;this.a-=0.01;} }
+        function createFirework(x, y) { for (let i = 0; i < 35; i++) { const ang = (Math.PI * 2 / 35) * i, spd = Math.random() * 5 + 2; particles.push(new P(x, y, themes[currentPage-1].c[Math.floor(Math.random()*3)], {x: Math.cos(ang) * spd, y: Math.sin(ang) * spd})); } }
+        function handleInteraction(e) { if (e.target.tagName === 'BUTTON') return; if (!isMusicPlaying) { document.getElementById('bgm').play().catch(()=>{}); isMusicPlaying = true; document.getElementById('hintText').style.display = 'none'; } createFirework(e.clientX, e.clientY); if (Math.random() > 0.45) { const t = document.createElement('div'); t.className = 'pop-text'; t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; t.textContent = phrases[Math.floor(Math.random() * phrases.length)]; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); } }
+        function autoFire() { createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.7); setTimeout(autoFire, Math.random() * 1000 + 800); }
         autoFire();
-
-        function nextPage(e) {
-            e.stopPropagation();
-            currentPage = currentPage === 1 ? 2 : 1;
-            document.querySelectorAll('.page').forEach((p,i)=>p.className=i===currentPage-1?'page active':'page');
-            document.body.style.background = themes[currentPage-1].bg;
-            document.getElementById('nextBtn').textContent = currentPage === 1 ? '下一份心意' : '回到序言';
-        }
-
-        function animate() {
-            ctx.fillStyle = themes[currentPage-1].bg + '22'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => { if (p.a > 0) { p.update(); p.draw(); } else particles.splice(i, 1); });
-            requestAnimationFrame(animate);
-        }
+        function nextPage(e) { e.stopPropagation(); currentPage = currentPage === 1 ? 2 : 1; document.querySelectorAll('.page').forEach((p,i)=>p.className=i===currentPage-1?'page active':'page'); document.body.style.background = themes[currentPage-1].bg; document.getElementById('nextBtn').textContent = currentPage === 1 ? '下一份心意' : '回到序言'; }
+        function animate() { ctx.fillStyle = themes[currentPage-1].bg + '22'; ctx.fillRect(0, 0, canvas.width, canvas.height); particles.forEach((p, i) => { if (p.a > 0) { p.update(); p.draw(); } else particles.splice(i, 1); }); requestAnimationFrame(animate); }
         animate();
     </script>
 </body>
